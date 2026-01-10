@@ -1,0 +1,104 @@
+blueprint:
+  name: Covers - Sunrise with Workday Logic - 1.0.0
+  description: Opens a cover at different sunrise times depending on workday status. On normal days and holidays it opens at configured times. Otherwise it opens after sunrise with a configurable delay timer.
+  author: Sl0th-KungFu
+  domain: automation
+  homeassistant:
+    min_version: 2024.6.0
+
+  input:
+    cover_entity:
+      name: Cover
+      description: Cover to be opened
+      selector:
+        entity:
+          domain: cover
+
+    sunrise_scheduling:
+      name: Sunrise Scheduling
+      icon: mdi:sun-clock
+      description: Configure when the cover opens based on sunrise, workday status, and optional delayed opening.
+      input:
+        sunrise_time:
+          name: Sunrise Time (Workday)
+          description: Time when the cover should open on workdays
+          selector:
+            entity:
+              domain: input_datetime
+
+        sunrise_time_holiday:
+          name: Sunrise Time (Holiday)
+          description: Time when the cover should open on non-workdays
+          selector:
+            entity:
+              domain: input_datetime
+
+        sunrise_delay_timer:
+          name: Sunrise Delay Timer
+          description: Timer used for delayed opening after sunrise
+          selector:
+            entity:
+              domain: timer
+
+        workday_sensor:
+          name: Workday Sensor
+          description: Binary sensor indicating workday status
+          selector:
+            entity:
+              domain: binary_sensor
+
+mode: single
+
+trigger:
+  - platform: sun
+    event: sunrise
+
+  - platform: time
+    at: !input sunrise_time
+    id: time
+
+  - platform: time
+    at: !input sunrise_time_holiday
+    id: timeHoliday
+
+condition: []
+
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: time
+          - condition: state
+            entity_id: !input workday_sensor
+            state: "on"
+        sequence:
+          - service: cover.open_cover
+            target:
+              entity_id: !input cover_entity
+
+      - conditions:
+          - condition: trigger
+            id: timeHoliday
+          - condition: state
+            entity_id: !input workday_sensor
+            state: "off"
+        sequence:
+          - service: cover.open_cover
+            target:
+              entity_id: !input cover_entity
+
+    default:
+      - service: timer.start
+        target:
+          entity_id: !input sunrise_delay_timer
+
+      - wait_for_trigger:
+          - platform: event
+            event_type: timer.finished
+            event_data:
+              entity_id: !input sunrise_delay_timer
+        timeout: "01:00:00"
+
+      - service: cover.open_cover
+        target:
+          entity_id: !input cover_entity
