@@ -1,5 +1,5 @@
 blueprint:
-  name: Covers - Sunset with delay - 1.0.0
+  name: Covers - Sunset with delay - 1.1.0
   description: Closes a cover at sunset (after a delay) or at a fixed time.
   author: Sl0th-KungFu
   domain: automation

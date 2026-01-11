@@ -1,5 +1,5 @@
 blueprint:
-  name: Covers - Sunset with delay and sensor check - 1.0.1
+  name: Covers - Sunset with delay and sensor check - 1.1.0
   description: Closes a cover at sunset (after a delay) or at a fixed time, only if the binary sensor is off and the cover is still mostly open. This is intended for offices.
   author: Sl0th-KungFu
   domain: automation

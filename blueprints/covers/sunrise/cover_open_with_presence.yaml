@@ -1,5 +1,5 @@
 blueprint:
-  name: Covers - Sunrise with Workday and Presence - 1.0.0
+  name: Covers - Sunrise with Workday and Presence - 1.1.0
   description: Opens a cover depending on sunrise or configured times. Behavior differs between workdays and holidays and only executes if the selected person is at selected zone.
   author: Sl0th-KungFu
   domain: automation

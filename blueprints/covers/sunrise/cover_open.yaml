@@ -1,5 +1,5 @@
 blueprint:
-  name: Covers - Sunrise with Workday Logic - 1.0.0
+  name: Covers - Sunrise with Workday Logic - 1.1.0
   description: Opens a cover at different sunrise times depending on workday status. On normal days and holidays it opens at configured times. Otherwise it opens after sunrise with a configurable delay timer.
   author: Sl0th-KungFu
   domain: automation
