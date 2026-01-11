@@ -1,0 +1,99 @@
+blueprint:
+  name: Covers - Sunset with delay and target position - 1.0.0
+  description: Closes a cover at sunset (after a delay) or at a fixed time to a desired position.
+  author: Sl0th-KungFu
+  domain: automation
+  homeassistant:
+    min_version: 2024.6.0
+
+  input:
+    cover_entity:
+      name: Cover
+      description: The cover to be controlled
+      selector:
+        entity:
+          domain: cover
+
+    position_entity:
+      name: Target Position
+      description: Target position for the cover
+      selector:
+        entity:
+          domain: input_number
+
+    sunset_scheduling:
+      name: Sunset Scheduling
+      icon: mdi:sun-clock
+      description: Configure when the cover closes based on sunset or fixed time with a delay timer.
+      input:
+        fixed_time:
+          name: Fixed Time
+          description: Fixed time as alternative to sunset
+          selector:
+            entity:
+              domain: input_datetime
+
+        timer_entity:
+          name: Delay Timer
+          description: Timer started at sunset before closing the cover
+          selector:
+            entity:
+              domain: timer
+
+mode: single
+
+trigger:
+  - platform: sun
+    event: sunset
+
+  - platform: time
+    at: !input fixed_time
+    id: time
+
+condition: []
+
+action:
+  - variables:
+      position: !input position_entity
+  - choose:
+      - conditions:
+          - condition: trigger
+            id:
+              - time
+        sequence:
+          - condition: numeric_state
+            entity_id: !input cover_entity
+            attribute: current_position
+            above: 80
+          - action: cover.set_cover_position
+            metadata: {}
+            target:
+              entity_id: !input cover_entity
+            data_template:
+              position: "{{ states(position) | int(10) }}"
+    default:
+      - action: timer.start
+        metadata: {}
+        target:
+          entity_id: !input timer_entity
+        data: {}
+      - wait_for_trigger:
+          - event_type: timer.finished
+            event_data:
+              entity_id: !input timer_entity
+            trigger: event
+        timeout:
+          hours: 1
+          minutes: 0
+          seconds: 0
+          milliseconds: 0
+      - condition: numeric_state
+        entity_id: !input cover_entity
+        attribute: current_position
+        above: 80
+      - action: cover.set_cover_position
+        metadata: {}
+        target:
+          entity_id: !input cover_entity
+        data_template:
+              position: "{{ states(position) | int(10) }}"
