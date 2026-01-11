@@ -1,5 +1,5 @@
 blueprint:
-  name: Covers - Time Based (Workday / Holiday) - 1.1.0
+  name: Covers - Time Based (Workday / Holiday) - 1.1.1
   description: Opens a cover at different configured times depending on workday status. No sunrise trigger and no delay logic.
   author: Sl0th-KungFu
   domain: automation
@@ -14,7 +14,7 @@ blueprint:
         entity:
           domain: cover
 
-  sunrise_scheduling:
+    sunrise_scheduling:
       name: Sunrise Scheduling
       icon: mdi:sun-clock
       description: Configure when the cover opens based on sunrise, workday status, and optional delayed opening.
