@@ -73,8 +73,8 @@ action:
             metadata: {}
             target:
               entity_id: !input cover_entity
-            data_template:
-              position: "{{ states(position) | int(0) }}"
+            data:
+              position: "{{ position }}"
     default:
       - action: timer.start
         metadata: {}
@@ -99,5 +99,5 @@ action:
         metadata: {}
         target:
           entity_id: !input cover_entity
-        data_template:
-          position: "{{ states(position) | int(0) }}"
+        data:
+          position: "{{ position }}"
