@@ -29,8 +29,10 @@ blueprint:
         zone:
           name: Zone
           description: The zone used for presence detection
+          default: "zone.home"
           selector:
-            zone: {}
+            entity:
+              domain: zone
 
     sunrise_scheduling:
       name: Sunrise Scheduling
