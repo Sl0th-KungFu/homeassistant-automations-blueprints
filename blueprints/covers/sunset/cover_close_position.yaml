@@ -1,5 +1,5 @@
 blueprint:
-  name: Covers - Sunset with delay and target position - 1.1.0
+  name: Covers - Sunset with delay and target position - 1.1.2
   description: Closes a cover at sunset (after a delay) or at a fixed time to a desired position.
   author: Sl0th-KungFu
   domain: automation
@@ -70,7 +70,7 @@ action:
             target:
               entity_id: !input cover_entity
             data:
-              position: "{{ position }}"
+              position: "{{ states(position) | int }}"
     default:
       - action: timer.start
         metadata: {}
@@ -96,4 +96,4 @@ action:
         target:
           entity_id: !input cover_entity
         data:
-          position: "{{ position }}"
+          position: "{{ states(position) | int }}"
