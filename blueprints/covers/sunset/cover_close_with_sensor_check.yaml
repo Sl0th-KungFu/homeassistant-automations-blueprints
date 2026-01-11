@@ -1,0 +1,118 @@
+blueprint:
+  name: Covers - Sunset with delay and sensor check - 1.0.1
+  description: Closes a cover at sunset (after a delay) or at a fixed time, only if the binary sensor is off and the cover is still mostly open. This is intended for offices.
+  author: Sl0th-KungFu
+  domain: automation
+  homeassistant:
+    min_version: 2024.6.0
+
+  input:
+    cover_entity:
+      name: Cover
+      description: The cover to be controlled
+      selector:
+        entity:
+          domain: cover
+
+    position_picker:
+      name: Target Position
+      description: Target position for the cover
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 1
+          mode: slider
+
+    sunset_scheduling:
+      name: Sunset Scheduling
+      icon: mdi:sun-clock
+      description: Configure when the cover closes based on sunset or fixed time with a delay timer.
+      input:
+        pc_entity:
+          name: PC Status
+          description: Binary sensor indicating whether the PC is on or off
+          selector:
+            entity:
+              domain: binary_sensor
+
+        fixed_time:
+          name: Fixed Time
+          description: Optional fixed time as alternative to sunset
+          selector:
+            entity:
+              domain: input_datetime
+
+        timer_entity:
+          name: Delay Timer
+          description: Timer started at sunset before closing the cover
+          selector:
+            entity:
+              domain: timer
+
+mode: single
+
+trigger:
+  - platform: sun
+    event: sunset
+
+  - platform: time
+    at: !input fixed_time
+    id: time
+
+condition: []
+
+action:
+  - variables:
+      position: !input position_picker
+  - choose:
+      - conditions:
+          - condition: trigger
+            id:
+              - time
+        sequence:
+          - condition: state
+            state:
+              - "off"
+            entity_id: !input pc_entity
+          - condition: numeric_state
+            entity_id: !input cover_entity
+            attribute: current_position
+            above: 80
+          - action: cover.set_cover_position
+            metadata: {}
+            target:
+              entity_id: !input cover_entity
+            data_template:
+              position: "{{ states(position) | int(0) }}"
+    default:
+      - action: timer.start
+        metadata: {}
+        target:
+          entity_id: !input timer_entity
+        data: {}
+      - wait_for_trigger:
+          - event_type: timer.finished
+            event_data:
+              entity_id: !input timer_entity
+            trigger: event
+        timeout:
+          hours: 1
+          minutes: 0
+          seconds: 0
+          milliseconds: 0
+      - condition: state
+        state:
+          - "off"
+        entity_id: !input pc_entity
+      - condition: numeric_state
+        entity_id: !input cover_entity
+        attribute: current_position
+        above: 80
+      - action: cover.set_cover_position
+        metadata: {}
+        target:
+          entity_id: !input cover_entity
+        data_template:
+          position: "{{ states(position) | int(0) }}"
